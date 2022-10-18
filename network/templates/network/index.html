@@ -241,6 +241,10 @@
                         let data = JSON.parse(response["content"]);
                         let content = data[0]['fields'];
                         let post_pk = data[0]['pk'];
+
+                        let time_content_editedAt = new Date(content.editedAt).toLocaleTimeString([], {hour:"2-digit", minute: "2-digit"});
+                        let date_content_editedAt = new Date(content.editedAt).toLocaleString([], {year: 'numeric', month: 'short', day: 'numeric'});
+                        let content_editedAt = `${date_content_editedAt}, ${time_content_editedAt}`
                         $('#nopost').remove();
                         
                         $('#new_posts').prepend(`
@@ -256,7 +260,7 @@
                                     <button type="button" class="btn btn-warning edit_btn">Edit</button>
                                 </div>
                                 <div>
-                                    <small>${content.editedAt|date}-Edited</small>
+                                    <small>${content_editedAt}-Edited</small>
                                 </div>
                                 <div class="m-1" id="post_content-${post_pk}">
                                     ${content.content}
