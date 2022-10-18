@@ -1,5 +1,6 @@
 {% extends "network/layout.html" %}
-
+{% load static %}
+    
 {% block body %}
     <div class="container border p-3">
         <h3 class="d-flex justify-content-center"><span class="text-info mx-1 text-capitalize">{{name}}</span> Profile</h3>
@@ -20,17 +21,19 @@
         </div>
         {%endif%}
         <div>
+            <h3>All 
+                {%if user.id == user_id%}
+                    my    
+                {%else%}
+                    {{name}}
+                {%endif%}
+                posts: 
+            </h3>
+        </div>
+        <div id="new_posts">
             {%if posts|length%}
-                <h3>All 
-                    {%if user.id == user_id%}
-                        my    
-                    {%else%}
-                        {{name}}
-                    {%endif%}
-                    posts: 
-                </h3>
                 {%for post in posts%}
-                <div class="border p-3 my-3">
+                <div class="border p-3 my-3" id="post-{{post.id}}">
                     <div>
                         <h3>
                             {%if user.id == post.poster.id%}
@@ -44,20 +47,31 @@
                             {%endif%}
                         </h3>
                     </div>
-                    {%if user.id == user_id%}
+                    {%if user.id == post.poster.id%}
                     <div>
-                        <a href="#" type="button" class="btn btn-warning">Edit</a>
+                        <button type="button" class="btn btn-warning edit_btn">Edit</button>
                     </div>
                     {%endif%}
                     <div>
-                        <small>{{post.createdAt}}</small>
+                        <small>
+                            {%if post.edited%}
+                                {{post.editedAt}}- Edited 
+                            {%else%}
+                                {{post.createdAt}} 
+                            {%endif%}
+                        </small>
                     </div>
-                    <div class="m-1">
+                    <div class="m-1" id="post_content-{{post.id}}">
                         {{post.content}}
                     </div>
-                    <div>
-                        <i class="fa fa-heart"></i>
-                        {{post.likes.all | length}}
+                    <div class="d-flex">
+                        <form id="like_post_form_{{post.id}}">
+                            <input type="text" value="{{post.id}}" hidden>
+                            <button class="btn btn-none border-0 p-0 like_post_btn" type="submit">
+                                <i class="mx-1 fa fa-heart"></i>
+                                <span id="span_like_{{post.id}}">{{post.likes.all | length}}</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
                 {%endfor%}
@@ -97,8 +111,11 @@
 
 
 {% block javascript %}
+
+    <script src="{% static 'network/helpers.js' %}"></script>
+
     <script>
-        follow = (e) => {
+        let follow = (e) => {
             let user_id = e.target.previousElementSibling.value;
             $("#follow_unfollow_user").submit(function (e) {
                 // preventing from page reload and default actions
@@ -153,6 +170,40 @@
         let unFollow = document.querySelector('#follow_unfollow');
         unFollow.addEventListener('click', follow);
 
+    </script>
+    
+    <script>
+        let post = document.querySelectorAll(".edit_btn");
+        let like_btn = document.querySelectorAll(".like_post_btn");
+
+        post.forEach((item) => {
+            item.addEventListener('click', clicked);
+        })
+    
+        like_btn.forEach((btn) => {
+            btn.addEventListener('click', like_post);
+        })
+    </script>
+
+    <script>
+        $("#new_posts").on('DOMNodeInserted', function(e) {
+            // like post 
+            let like_btn = document.querySelectorAll(".like_post_btn");
+            
+            if(like_btn){
+                like_btn.forEach((btn) => {
+                    btn.addEventListener('click', like_post);
+                })
+            }
+
+            // editing a post
+            let post = document.querySelectorAll(".edit_btn");
+            if(post){
+                post.forEach((item) => {
+                    item.addEventListener('click', clicked);
+                })
+            }
+        });
     </script>
     
 {%endblock%}

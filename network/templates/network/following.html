@@ -16,9 +16,15 @@
                             </h3>
                         </div>
                         <div>
-                            <small>{{post.createdAt}}</small>
+                            <small>
+                                {%if post.edited%}
+                                    {{post.editedAt}}- Edited 
+                                {%else%}
+                                    {{post.createdAt}} 
+                                {%endif%}
+                            </small>
                         </div>
-                        <div class="m-1">
+                        <div class="m-1" id="post_content-{{post.id}}">
                             {{post.content}}
                         </div>
                         <div class="d-flex">
