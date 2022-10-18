@@ -1,0 +1,158 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <div class="container border p-3">
+        <h3 class="d-flex justify-content-center"><span class="text-info mx-1 text-capitalize">{{name}}</span> Profile</h3>
+        <div class="d-flex justify-content-center">
+            <div id="num_followers" class="bg-secondary text-white px-3 py-2 rounded mx-2">Followers {{followers}}</div>
+            <div class="bg-secondary text-white px-3 py-2 rounded">Following {{followings}}</div>
+        </div>
+        {%if user.id != user_id%}
+        <div class="d-flex justify-content-center my-3">
+            <form id="follow_unfollow_user">
+                <input type="text" value="{{user_id}}" hidden>
+                {%if isFollowed%}
+                    <button type="submit" id="follow_unfollow" class="btn btn-danger">Unfollow {{name}}</button>
+                {%else%}
+                    <button type="submit" id="follow_unfollow" class="btn btn-primary">Follow {{name}}</button>
+                {%endif%}
+            </form>
+        </div>
+        {%endif%}
+        <div>
+            {%if posts|length%}
+                <h3>All 
+                    {%if user.id == user_id%}
+                        my    
+                    {%else%}
+                        {{name}}
+                    {%endif%}
+                    posts: 
+                </h3>
+                {%for post in posts%}
+                <div class="border p-3 my-3">
+                    <div>
+                        <h3>
+                            {%if user.id == post.poster.id%}
+                            <a href="{%url 'me'%}">
+                                You
+                            </a>
+                            {%else%}
+                            <a href="{%url 'profile' post.poster%}-{{post.poster.id}}">
+                                {{post.poster}}
+                            </a>
+                            {%endif%}
+                        </h3>
+                    </div>
+                    {%if user.id == user_id%}
+                    <div>
+                        <a href="#" type="button" class="btn btn-warning">Edit</a>
+                    </div>
+                    {%endif%}
+                    <div>
+                        <small>{{post.createdAt}}</small>
+                    </div>
+                    <div class="m-1">
+                        {{post.content}}
+                    </div>
+                    <div>
+                        <i class="fa fa-heart"></i>
+                        {{post.likes.all | length}}
+                    </div>
+                </div>
+                {%endfor%}
+                <div class="d-flex justify-content-center">
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination">
+                            {%if current_page > 1 %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="sr-only">Previous</span>
+                                </a>
+                            </li>
+                            {%endif%} 
+                            
+                            <li class="page-item"><a class="page-link" href="?page={{current_page}}">{{current_page}}</a></li>
+
+                            {%if last_page != 1 and current_page < last_page%}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{current_page|add:'1'}}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="sr-only">Next</span>
+                                </a>
+                            </li>
+                            {%endif%}
+                        </ul>
+                    </nav>
+                </div>
+            {%else%}
+                <div class="d-flex justify-content-center" id="nopost">
+                    <p>No posts yet!</p>    
+                </div>
+            {%endif%}
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block javascript %}
+    <script>
+        follow = (e) => {
+            let user_id = e.target.previousElementSibling.value;
+            $("#follow_unfollow_user").submit(function (e) {
+                // preventing from page reload and default actions
+                e.preventDefault();
+                // make POST ajax call
+                $.ajax({
+                    type: 'POST',
+                    url: `/follow/${user_id}`,
+                    data: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}' 
+                    },
+                
+                    success: function (response) {
+                        let data = JSON.parse(response["ser_follower"]);
+                        let username = data[0]["fields"].username;
+                        let id = data[0]["fields"].id;
+                        let isfollowed = JSON.parse(response['followed']);
+                        let number_of_followers = JSON.parse(response['number_of_followers']);
+                       
+                        if(isfollowed){
+                            $("#follow_unfollow_user").html(
+                                `
+                                <input type="text" value="${id}" hidden>
+                                <button type="submit" id="follow_unfollow" class="btn btn-danger">Unfollow ${username}</button>
+                                
+                               
+                                 `
+                            )
+                        }
+                        else{
+                            $("#follow_unfollow_user").html(
+                                `
+                                <input type="text" value="${id}" hidden>
+                                <button type="submit" id="follow_unfollow" class="btn btn-primary">Follow ${username}</button>
+                
+                                `
+                            )
+                        }   
+
+                        $("#num_followers").html(`
+                            Followers ${number_of_followers}
+                        `)
+                    },
+                    error: function (response) {
+                        // alert the error if any error occured
+                        console.log("something bad happend!")
+                    }
+                }) 
+            });  
+        }
+        
+        let unFollow = document.querySelector('#follow_unfollow');
+        unFollow.addEventListener('click', follow);
+
+    </script>
+    
+{%endblock%}
