@@ -1,0 +1,204 @@
+{%extends "EisenHowerApp/layout.html"%}
+
+{%block content%}
+
+<div class="cards d-flex flex-column justify-content-center align-items-center">
+    <div class="row">
+        <div class="col card card4">
+            <div class="card-header">
+               Do First 
+            </div>
+            <div class="card-body">
+                <div class="task_lists">
+                    <ul id="sec_do_first">
+                        {%for task in tasks%}
+                            {%if task.quadrant == 'do_first' %}
+                            <li class="d-flex">
+                                <form action="">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                                    </div>
+                                </form>
+                                {{task.title}}
+                            </li>
+                            {%endif%}
+                        {%endfor%}
+                    </ul>
+                </div>
+            </div> 
+        </div>
+        <div class="col card card2">
+            <div class="card-header">
+                Schedule
+            </div>
+            <div class="card-body">
+                <div class="task_lists">
+                    <ul id="sec_schedule">
+                        {%for task in tasks%}
+                            {%if task.quadrant == 'schedule' %}
+                            <li class="d-flex">
+                                <form action="">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                                    </div>
+                                </form>
+                                {{task.title}}
+                            </li>
+                            {%endif%}
+                        {%endfor%}
+                    </ul>
+                </div>
+            </div> 
+        </div>
+    </div>
+    <div class="row">
+        <div class="col card card3">
+            <div class="card-header">
+                Delegate
+            </div>
+            <div class="card-body">
+                <div class="task_lists">
+                    <ul id="sec_delegate">
+                        {%for task in tasks%}
+                            {%if task.quadrant == 'delegate' %}
+                            <li class="d-flex">
+                                <form action="">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                                    </div>
+                                </form>
+                                {{task.title}}
+                            </li>
+                            {%endif%}
+                        {%endfor%}
+                    </ul>
+                </div>
+            </div> 
+        </div>
+        <div class="col card card1">
+            <div class="card-header">
+                Don't do
+            </div>
+            <div class="card-body">
+                <div class="task_lists" >
+                    <ul id="sec_dont_do">
+                        {%for task in tasks%}
+                            {%if task.quadrant == 'dont_do' %}
+                            <li class="d-flex">
+                                <form action="">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                                    </div>
+                                </form>
+                                {{task.title}}
+                            </li>
+                            {%endif%}
+                        {%endfor%}
+                    </ul>
+                </div>
+            </div> 
+        </div>
+    </div>
+</div>
+
+<div class="add_task_container">
+    <button type="button" class="btn btn-primary add_task" data-bs-toggle="modal" data-bs-target="#add_new_task">
+        <i class="fa-solid fa-plus text-white"></i>
+    </button>
+</div>
+
+
+<div class="modal fade-scale" id="add_new_task" tabindex="-1" aria-labelledby="add_new_taskLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="add_new_taskLabel">New Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form class="from" method="post" id="task_form">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3 row">
+                        <div class="">
+                            <input type="text" name="title" class="form-control" id="task_title" placeholder="Task Title">
+                        </div>
+                    </div>
+                    <select class="form-select" name="quadrant" aria-label="Default select example">
+                        {%for q in valid_quadrants%}
+                            <option value="{{q.0}}">{{q.1}}</option>
+                        {%endfor%}
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" value="create_new_task" id="save_task" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{%endblock%}
+
+
+{%block javascript%}
+<script>    
+    const csrftoken = getCookie('csrftoken');
+    let task_form = document.querySelector("#task_form");
+
+    task_form.addEventListener('submit', Create_newTask)
+
+    
+    function Create_newTask(e){
+        e.preventDefault();
+        
+        let formData = new FormData(task_form);
+
+        fetch('http://127.0.0.1:8000/create_task', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers:{
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrftoken,
+            },
+            body: formData
+        })
+        .then(response => {
+            return response.json()
+        })
+        .then(data => {
+            data = JSON.parse(data);
+            let task_title = data[0]["fields"]['title']; 
+            let task_quadrant = data[0]["fields"]["quadrant"];
+            document.querySelector(`#sec_${task_quadrant}`).innerHTML += `
+                <li class="d-flex">
+                    <form action="">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                        </div>
+                    </form>
+                    ${task_title}
+                </li>
+            `;
+            task_form.reset();
+        })
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+
+</script>
+{%endblock%}

@@ -1,0 +1,223 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    overflow-x: hidden;
+    background-color: #eee;
+}
+
+ul{
+    list-style: none;
+}
+.app_container{
+
+}
+
+.sideBar{
+    overflow-x: auto;
+    border-right: 1px dotted rgb(6, 5, 5) !important;
+    height: 100vh;
+    padding: 0;
+}
+
+.sideBar .sideBar_elements{
+    padding: 20px;
+    /* border: 1px solid red; */
+}
+
+.sideBar .sideBar_elements a .sideBar_element{
+    border: 1px solid gray;
+    border-radius:5px;
+    padding:10px 15px;
+    margin-top: 10px;
+    background-color: white;
+}
+
+.sideBar .sideBar_elements a{
+    text-decoration: none;
+    color:black
+}
+
+.sideBar .sideBar_elements a .sideBar_element:hover{
+    background-color: rgb(81, 79, 79);
+    color:white;
+}
+
+.App{
+    /* width:100%; */
+    /* border:1px solid red !important; */
+    /* height: 100vh; */
+    overflow-x: auto;
+}
+
+.App .cards{
+    /* border:1px solid red; */
+    height: 100%;
+}
+
+.App .cards .card{
+    border:1px solidrgb(116, 114, 114);
+    width:450px;
+    height:300px;
+    margin:10px;
+    padding: 0;
+    overflow-y: auto !important;
+}
+
+.App .cards .card::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+.App .cards .card::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+.App .cards .card1::-webkit-scrollbar-thumb {
+  background: rgba(232, 77, 77, 0.537);
+}
+
+.App .cards .card2::-webkit-scrollbar-thumb {
+  background: rgba(46, 119, 182, 0.537);
+}
+
+.App .cards .card3::-webkit-scrollbar-thumb {
+  background: rgba(182, 178, 52, 0.537);
+}
+
+.App .cards .card4::-webkit-scrollbar-thumb {
+  background: rgba(70, 167, 53, 0.537);
+}
+
+/* Handle on hover */
+.App .cards .card::-webkit-scrollbar-thumb:hover {
+  background: rgb(193, 194, 194);
+}
+
+.App .cards .card1{
+    background-color: rgba(255, 0, 0, 0.537);
+}
+
+.App .cards .card1 .card-header{
+    color:white;
+    background-color: rgba(243, 65, 65, 0.537);
+}
+
+.App .cards .card1:hover{
+    box-shadow: 0px 0px 8px rgba(255, 0, 0);
+    /* border: 1px solid rgb(212, 96, 96);; */
+    /* animation: border_cards 2s linear alternate; */
+}
+
+.App .cards .card2{
+    background-color: rgba(33, 97, 154, 0.537);
+}
+
+.App .cards .card2 .card-header{
+    color:white;
+    background-color: rgba(31, 123, 204, 0.537);
+}
+
+.App .cards .card2:hover{
+    box-shadow: 0px 0px 8px rgba(33, 97, 154);
+}
+
+.App .cards .card3{
+    background-color: rgba(195, 190, 48, 0.537);
+}
+
+
+.App .cards .card3 .card-header{
+    color:white;
+    background-color: rgba(223, 217, 47, 0.537);
+}
+
+.App .cards .card3:hover{
+    box-shadow: 0px 0px 8px rgba(195, 190, 48);
+}
+
+.App .cards .card4{
+    background-color: rgba(64, 168, 46, 0.537);
+}
+
+.App .cards .card4 .card-header{
+    color:white;
+    background-color: rgba(63, 185, 41, 0.537);
+}
+
+.App .cards .card4:hover{
+    box-shadow: 0px 0px 8px rgba(64, 168, 46) ;
+}
+
+.add_task_container{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin:15px;
+}
+
+.add_task_container .add_task{
+    background-color: rgb(11, 133, 239);
+    border-radius: 50%;
+    padding:15px 20px;
+}
+
+.add_task_container .add_task:hover{
+    box-shadow: 0px 0px 8px rgb(11, 133, 239);
+}
+
+.fade-scale {
+  transform: scale(0.8);
+  opacity: 0;
+  -webkit-transition: all .25s linear;
+  -o-transition: all .25s linear;
+  transition: all .25s linear;
+}
+
+.fade-scale.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.fade-scale_from_buttom{
+    transform: translate(-100px, 60px);
+    opacity: 0;
+    -webkit-transition: all .25s linear;
+    -o-transition: all .25s linear;
+    transition: all .25s linear;
+}
+
+.fade-scale_from_buttom.show{
+    opacity: 1;
+    transform: translate(50px, 60px);
+}
+
+.task_lists ul{
+    padding: 0;
+    margin:0;
+}
+.task_lists ul li{
+    padding:10px 5px;
+    border-bottom:1px solid rgb(103, 103, 103);
+}
+
+/* Task finished */
+.finished_task_container{
+    margin: 10px;
+}
+.finished_task_container > div{
+    border-bottom: 1px solid #333;
+    padding: 20px;
+}
+
+.finished_task_container > div:hover{
+    background-color: aliceblue;
+}
+
+.delete_task{
+    margin-right: 10px;;
+}
