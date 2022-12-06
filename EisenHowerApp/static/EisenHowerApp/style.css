@@ -46,6 +46,11 @@ ul{
     color:white;
 }
 
+.developer{
+    position: absolute;
+    bottom:0
+}
+
 .App{
     /* width:100%; */
     /* border:1px solid red !important; */
@@ -104,7 +109,7 @@ ul{
 
 .App .cards .card1 .card-header{
     color:white;
-    background-color: rgba(243, 65, 65, 0.537);
+    background-color: rgba(243, 65, 65);
 }
 
 .App .cards .card1:hover{
@@ -119,7 +124,7 @@ ul{
 
 .App .cards .card2 .card-header{
     color:white;
-    background-color: rgba(31, 123, 204, 0.537);
+    background-color: rgba(31, 123, 204);
 }
 
 .App .cards .card2:hover{
@@ -133,7 +138,7 @@ ul{
 
 .App .cards .card3 .card-header{
     color:white;
-    background-color: rgba(223, 217, 47, 0.537);
+    background-color: rgba(223, 217, 47);
 }
 
 .App .cards .card3:hover{
@@ -146,7 +151,7 @@ ul{
 
 .App .cards .card4 .card-header{
     color:white;
-    background-color: rgba(63, 185, 41, 0.537);
+    background-color: rgba(63, 185, 41);
 }
 
 .App .cards .card4:hover{
@@ -218,6 +223,25 @@ ul{
     background-color: aliceblue;
 }
 
+
+.sticy_card_header{
+    position: sticky;
+    top:0
+}
+
+.task_lists .task_item:hover{
+    background-color: #f1f1f1;
+    cursor: pointer;
+    border-radius: 20px;
+}
+
 .delete_task{
-    margin-right: 10px;;
+    display: none;
+}
+
+.delete_a_task{
+    
+}
+.delete_completed_task i:hover, .delete_task i:hover{
+    color:rgb(217, 78, 78)
 }

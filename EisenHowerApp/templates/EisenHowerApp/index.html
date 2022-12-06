@@ -5,7 +5,7 @@
 <div class="cards d-flex flex-column justify-content-center align-items-center">
     <div class="row">
         <div class="col card card4">
-            <div class="card-header">
+            <div class="card-header sticy_card_header">
                Do First 
             </div>
             <div class="card-body">
@@ -13,22 +13,55 @@
                     <ul id="sec_do_first">
                         {%for task in tasks%}
                             {%if task.quadrant == 'do_first' %}
-                            <li class="d-flex">
-                                <form action="">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                            <li class="d-flex task_item" id="ts_{{task.id}}">
+                                <form method="post" id="form_task_{{task.id}}" onsubmit="return false">
+                                    {% csrf_token %}
+                                    <div class="form-check isDone">
+                                        {%if task.status == "done"%}
+                                            <input class="form-check-input" name="isChecked" type="checkbox" checked>
+                                        {%elif task.status == "in_progress"%}
+                                            <input class="form-check-input" name="isChecked" type="checkbox">
+                                        {%endif%}
                                     </div>
                                 </form>
                                 {{task.title}}
+                                <div class="form-check delete_task">
+                                    <button type="button" class="btn delete_a_task" data-bs-toggle="modal" data-bs-target="#delete_task_{{task.id}}">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </button>
+                                </div>
                             </li>
                             {%endif%}
+                            <!-- confirm deleting of a task -->
+                            <div class="modal fade-scale" id="delete_task_{{task.id}}" tabindex="-1" aria-labelledby="delete_taskLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="delete_taskLabel">Confirm deleting the Task</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        
+                                        <form class="from delete_task_form" method="post">
+                                            {% csrf_token %}
+                                            <input type="text" name="task_id" value="{{task.id}}" hidden>
+                                            <div class="modal-body">
+                                                <p>You're about to delete the following task: <strong>{{task.title}}</strong></p>
+
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" id="delete_task_id" name="delete_task" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         {%endfor%}
                     </ul>
                 </div>
             </div> 
         </div>
         <div class="col card card2">
-            <div class="card-header">
+            <div class="card-header sticy_card_header">
                 Schedule
             </div>
             <div class="card-body">
@@ -36,15 +69,47 @@
                     <ul id="sec_schedule">
                         {%for task in tasks%}
                             {%if task.quadrant == 'schedule' %}
-                            <li class="d-flex">
-                                <form action="">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                            <li class="d-flex task_item" id="ts_{{task.id}}">
+                                <form method="post" id="form_task_{{task.id}}" onsubmit="return false">
+                                    {% csrf_token %}
+                                    <div class="form-check isDone">
+                                        {%if task.status == "done"%}
+                                            <input class="form-check-input" name="isChecked" type="checkbox" checked>
+                                        {%elif task.status == "in_progress"%}
+                                            <input class="form-check-input" name="isChecked"  type="checkbox">
+                                        {%endif%}
                                     </div>
                                 </form>
                                 {{task.title}}
+                                <div class="form-check delete_task">
+                                    <button type="button" class="btn delete_a_task" data-bs-toggle="modal" data-bs-target="#delete_task_{{task.id}}">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </button>
+                                </div>
                             </li>
                             {%endif%}
+                            <!-- confirm deleting of a task -->
+                            <div class="modal fade-scale" id="delete_task_{{task.id}}" tabindex="-1" aria-labelledby="delete_taskLabel_{{task.id}}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="delete_taskLabel">Confirm deleting the Task</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form class="from delete_task_form" method="post">
+                                            {% csrf_token %}
+                                            <input type="text" name="task_id" value="{{task.id}}">
+                                            <div class="modal-body">
+                                                <p>You're about to delete the following task: <strong>{{task.title}}</strong> </p>
+
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" id="delete_task_id" name="delete_task" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         {%endfor%}
                     </ul>
                 </div>
@@ -53,7 +118,7 @@
     </div>
     <div class="row">
         <div class="col card card3">
-            <div class="card-header">
+            <div class="card-header sticy_card_header">
                 Delegate
             </div>
             <div class="card-body">
@@ -61,22 +126,56 @@
                     <ul id="sec_delegate">
                         {%for task in tasks%}
                             {%if task.quadrant == 'delegate' %}
-                            <li class="d-flex">
-                                <form action="">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                            <li class="d-flex task_item" id="ts_{{task.id}}">
+                                <form method="post" id="form_task_{{task.id}}" onsubmit="return false">
+                                    {% csrf_token %}
+                                    <div class="form-check isDone">
+                                        {%if task.status == "done"%}
+                                            <input class="form-check-input" name="isChecked" type="checkbox" checked>
+                                        {%elif task.status == "in_progress"%}
+                                            <input class="form-check-input" name="isChecked" type="checkbox">
+                                        {%endif%}
                                     </div>
                                 </form>
                                 {{task.title}}
+
+                                <div class="form-check delete_task">
+                                    <button type="button" class="btn delete_a_task" data-bs-toggle="modal" data-bs-target="#delete_task_{{task.id}}">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </button>
+                                </div>
                             </li>
                             {%endif%}
+                            <!-- confirm deleting of a task -->
+                            <div class="modal fade-scale" id="delete_task_{{task.id}}" tabindex="-1" aria-labelledby="delete_taskLabel_{{task.id}}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="delete_taskLabel">Confirm deleting the Task</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        
+                                        <form class="from delete_task_form" method="post">
+                                            {% csrf_token %}
+                                            <input type="text" name="task_id" value="{{task.id}}" hidden>
+                                            <div class="modal-body">
+                                                <p>You're about to delete the following task: <strong>{{task.title}}</strong> </p>
+
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" id="delete_task_id" name="delete_task" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         {%endfor%}
                     </ul>
                 </div>
             </div> 
         </div>
         <div class="col card card1">
-            <div class="card-header">
+            <div class="card-header sticy_card_header">
                 Don't do
             </div>
             <div class="card-body">
@@ -84,15 +183,47 @@
                     <ul id="sec_dont_do">
                         {%for task in tasks%}
                             {%if task.quadrant == 'dont_do' %}
-                            <li class="d-flex">
-                                <form action="">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                            <li class="d-flex task_item" id="ts_{{task.id}}">
+                                <form method="post" id="form_task_{{task.id}}" onsubmit="return false">
+                                    {% csrf_token %}
+                                    <div class="form-check isDone">
+                                        {%if task.status == "done"%}
+                                            <input class="form-check-input" name="isChecked" type="checkbox" checked>
+                                        {%elif task.status == "in_progress"%}
+                                            <input class="form-check-input" name="isChecked" type="checkbox">
+                                        {%endif%}
                                     </div>
                                 </form>
                                 {{task.title}}
+                                <div class="form-check delete_task">
+                                    <button type="button" class="btn delete_a_task" data-bs-toggle="modal" data-bs-target="#delete_task_{{task.id}}">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </button>
+                                </div>
                             </li>
                             {%endif%}
+                            <!-- confirm deleting of a task -->
+                            <div class="modal fade-scale" id="delete_task_{{task.id}}" tabindex="-1" aria-labelledby="delete_taskLabel_{{task.id}}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="delete_taskLabel">Confirm deleting the Task</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        
+                                        <form class="from delete_task_form" method="post">
+                                            {% csrf_token %}
+                                            <input type="text" name="task_id" value="{{task.id}}" hidden>
+                                            <div class="modal-body">
+                                                <p>You're about to delete the following task: <strong>{{task.title}}</strong> </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" id="delete_task_id" name="delete_task" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         {%endfor%}
                     </ul>
                 </div>
@@ -108,6 +239,7 @@
 </div>
 
 
+<!-- creating a task -->
 <div class="modal fade-scale" id="add_new_task" tabindex="-1" aria-labelledby="add_new_taskLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -141,8 +273,8 @@
 
 
 {%block javascript%}
-<script>    
-    const csrftoken = getCookie('csrftoken');
+<script>  
+    // create a new task  
     let task_form = document.querySelector("#task_form");
 
     task_form.addEventListener('submit', Create_newTask)
@@ -159,7 +291,127 @@
             headers:{
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': csrftoken,
+            },
+            body: formData
+        })
+        .then(response => {
+            return response.json()
+        })
+        .then(data => {
+            if(data.error){
+                //document.querySelector(".toast-body")[0].innerHTML = data.error;
+                document.querySelector(".toast")[0].show();
+            }
+            else{
+                data = JSON.parse(data);
+                let task_id = data[0]['pk'];
+                let task_title = data[0]["fields"]['title']; 
+                let task_quadrant = data[0]["fields"]["quadrant"];
+                document.querySelector(`#sec_${task_quadrant}`).innerHTML += `
+                <li class="d-flex task_item" id="ts_${task_id}">
+                    <form method="post" id="form_task_${task_id}" onsubmit="return false">
+                        {% csrf_token %}
+                        <div class="form-check isDone" id="isDone_${task_id}">        
+                            <input class="form-check-input" name="isChecked" type="checkbox">
+                        </div>
+                    </form>
+                    ${task_title}
+                    <div class="form-check delete_task">
+                        <button type="button" class="btn delete_a_task" data-bs-toggle="modal" data-bs-target="#delete_task_${task_id}">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </li>
+                <div class="modal fade-scale" id="delete_task_${task_id}" tabindex="-1" aria-labelledby="delete_taskLabel_${task_id}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="delete_taskLabel_${task_id}">Confirm deleting the Task</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            
+                            <form class="from delete_task_form" id="delete_task_form_${task_id}" method="post">
+                                {% csrf_token %}
+                                <input type="text" name="task_id" value="${task_id}" hidden>
+                                <div class="modal-body">
+                                    <p>You're about to delete the following task: <strong>${task_title}</strong> </p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" id="delete_task_id" name="delete_task" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>`
+                // update task status
+                let task = document.querySelector(`#isDone_${task_id}`);
+                task.addEventListener('click', (e) => {
+                    let list_item = e.target.parentNode.parentNode.parentNode;
+                    let task_form_item =  e.target.parentNode.parentNode;
+                    let delete_task = e.target.parentNode.parentNode.nextSibling.nextSibling;
+                    checkTaskStatus(e.target, list_item, delete_task);
+                    updateTask(task_form_item, list_item);
+                });
+                // delete task
+                let dtask = document.querySelector(`#delete_task_form_${task_id}`);
+                dtask.addEventListener('submit', DeleteTask)
+            }
+            task_form.reset();
+        })
+    }
+</script>
+
+
+<script>
+    // mark a task as done
+
+    let checkboxTask = document.querySelectorAll(".isDone");
+
+    // onload page
+    document.addEventListener('DOMContentLoaded', () => {
+        checkboxTask.forEach((task) => {
+            let check_task = task.childNodes[1];
+            let list_item = check_task.parentNode.parentNode.parentNode;
+            let delete_task = check_task.parentNode.parentNode.nextSibling.nextSibling;
+            checkTaskStatus(check_task, list_item, delete_task);
+        });
+    });
+
+    // check or uncheck events for the checkbox
+    checkboxTask.forEach((task) => {
+        task.addEventListener('click', (e) => {
+            let list_item = e.target.parentNode.parentNode.parentNode;
+            let task_form_item =  e.target.parentNode.parentNode;
+            let delete_task = e.target.parentNode.parentNode.nextSibling.nextSibling;
+            checkTaskStatus(e.target, list_item, delete_task);
+            updateTask(task_form_item, list_item);
+        });
+    })
+
+    function checkTaskStatus(checkboxContainer, li, dt){
+        if(checkboxContainer.checked){
+            li.style.textDecoration = 'line-through';
+            li.classList.add('justify-content-between');
+            dt.style.display = "inline-block";
+            checkboxContainer.checked = true;
+        } 
+        else{
+            li.style.textDecoration = 'none';
+            li.classList.remove('justify-content-between');
+            dt.style.display = "none"; 
+            checkboxContainer.checked = false; 
+        }
+    }
+
+    function updateTask(form, li){
+        let formData = new FormData(form);
+        let taskId =  li.id.replace("ts_", "");
+        fetch(`http://127.0.0.1:8000/update_task_status/${taskId}`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers:{
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
             },
             body: formData
         })
@@ -168,37 +420,47 @@
         })
         .then(data => {
             data = JSON.parse(data);
-            let task_title = data[0]["fields"]['title']; 
-            let task_quadrant = data[0]["fields"]["quadrant"];
-            document.querySelector(`#sec_${task_quadrant}`).innerHTML += `
-                <li class="d-flex">
-                    <form action="">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                        </div>
-                    </form>
-                    ${task_title}
-                </li>
-            `;
-            task_form.reset();
+        })
+
+        // submit the form
+        form.requestSubmit()
+    }
+</script>
+
+<script>
+    // delete task
+    const task_forms = document.querySelectorAll(".delete_task_form");
+
+    task_forms.forEach((task_form) => {
+        task_form.addEventListener('submit', DeleteTask)
+    })
+
+    
+    function DeleteTask(e, form){
+        e.preventDefault();
+        let taskID = e.target.firstChild.nextSibling.nextSibling.nextSibling.value;
+
+        let formData = new FormData(e.target);
+
+        fetch(`http://127.0.0.1:8000/delete_task/${taskID}`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers:{
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: formData
+        })
+        .then(response => {
+            return response.json()
+        })
+        .then(data => {
+            const delete_task = document.querySelector(`#ts_${taskID}`);
+            const delete_model = document.querySelector(`#delete_task_${taskID}`)
+            delete_task.remove();
+            delete_model.remove();
         })
     }
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-
 </script>
+
 {%endblock%}
