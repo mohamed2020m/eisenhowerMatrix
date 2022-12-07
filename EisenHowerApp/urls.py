@@ -9,4 +9,6 @@ urlpatterns=[
     path("create_task", views.CreateTask, name="create_task"),
     path("update_task_status/<int:task_id>", views.UpdateTaskStatus, name="update_task_status"),
     path("delete_task/<int:task_id>", views.DeleteTask, name="delete_task"),
+    path("register", views.register, name="register"),
+    path("login", views.login, name="login"),
 ]

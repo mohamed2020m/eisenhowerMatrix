@@ -1,9 +1,13 @@
 from django.shortcuts import render
-from EisenHowerApp.models import Tasks
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
+from django.urls import reverse
 from django.core import serializers
 from django.db import IntegrityError
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from EisenHowerApp.models import Tasks, Users
 
+@login_required
 def index(request):
     tasks = Tasks.objects.all()
     return render(request, 'EisenHowerApp/index.html', {
@@ -13,6 +17,7 @@ def index(request):
         ]
     })
 
+@login_required
 def completedTask(request):
     completed_tasks = Tasks.objects.filter(status="done")
 
@@ -20,7 +25,7 @@ def completedTask(request):
         "completedTask": completed_tasks
     })
 
-
+@login_required
 def CreateTask(request):
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         title = request.POST["title"]
@@ -28,16 +33,23 @@ def CreateTask(request):
 
         # create a task
         try:
-            new_task = Tasks(title=title, quadrant=quadrant)
-            new_task.save()
+            if quadrant in ['do_first', 'schedule', 'delegate','dont_do'] :
+                new_task = Tasks(title=title, quadrant=quadrant)
+                new_task.save()
+            else:
+                raise ValueError('No valid task type!') 
         except IntegrityError:
-            return JsonResponse({"error": "Already exist!"}, safe=False, status='500')
+            return JsonResponse({"error": "Already exist!"}, status=500)
+        
+        except ValueError as e:
+            return JsonResponse({"error": str(e)}, status=501)
 
-        serialized_new_task = serializers.serialize('json', [ new_task, ])
-        return JsonResponse(serialized_new_task,safe=False, status='200')
+        serialized_new_task = serializers.serialize('json', [ new_task])
+        return JsonResponse({"message": "Successfully created!", "result": serialized_new_task}, status=200)
 
-    return JsonResponse({"Error": "Unvalid method"}, safe=False, status='501')
+    return JsonResponse({"Error": "Unvalid method"}, status=405)
 
+@login_required
 def UpdateTaskStatus(request, task_id):
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         checked = request.POST.get("isChecked")
@@ -52,21 +64,71 @@ def UpdateTaskStatus(request, task_id):
         if(task_status in ['done', 'in_progress']):
             Tasks.objects.filter(id=task_id).update(status=task_status)
         else:
-            return HttpResponse("server Error 500")
+            return JsonResponse({"error":"Unvalid task status!"}, status=400)
 
         updated_task = Tasks.objects.get(pk=task_id)
 
         serialized_updated_task = serializers.serialize('json', [ updated_task, ])
-        return JsonResponse(serialized_updated_task, safe=False, status='200')
+        return JsonResponse(serialized_updated_task, safe=False, status=200)
     
-    return JsonResponse({"Error":"Unvalid method"}, safe=False, status='501')
+    return JsonResponse({"Error":"Unvalid method"}, status=405)
 
+@login_required
 def DeleteTask(request, task_id):
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        print("request POST dictionary: ", request.POST)
         # delete the task
         Tasks.objects.filter(id=task_id).delete()
-        return JsonResponse({"message": "Deleted Successfully!"}, safe=False, status='200')
-    return JsonResponse({"Error": "Unvalid method"}, safe=False, status='501')
+        return JsonResponse({"message": "Deleted Successfully!"}, status=200)
+    return JsonResponse({"Error": "Unvalid method"}, status=405)
 
 
+def login_view(request):
+    if request.method == "POST":
+        # Attempt to sign user in
+        username = request.POST["username"]
+        password = request.POST["password"]
+        user = authenticate(request, username=username, password=password)
+
+        # Check if authentication successful
+        if user is not None:
+            login(request, user)
+            return HttpResponseRedirect(reverse("index"))
+        else:
+            return render(request, "EisenHowerApp/login.html", {
+                "message": "Invalid username and/or password."
+            })
+    else:
+        return render(request, "EisenHowerApp/login.html")
+
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect(reverse("index"))
+
+def register(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        email = request.POST["email"]
+
+        # Ensure password matches confirmation
+        password = request.POST["password"]
+        confirmation = request.POST["confirmation"]
+        if password != confirmation:
+            return render(request, "EisenHowerApp/register.html", {
+                "message": "Passwords must match."
+            })
+
+        # Attempt to create new user
+        try:
+            user = Users.objects.create_user(username, email, password)
+            user.save()
+        except IntegrityError:
+            return render(request, "EisenHowerApp/register.html", {
+                "message": "Username already taken."
+            })
+
+        login(request, user)
+
+        return HttpResponseRedirect(reverse("index"))
+    
+    return render(request, "EisenHowerApp/register.html")

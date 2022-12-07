@@ -56,6 +56,10 @@
         .then(data => {
             const delete_task = document.querySelector(`#task_container_${taskID}`);
             delete_task.remove();
+            new Toast({
+                message: data.message,
+                type: 'success'
+            }); 
         })
     }
 </script>

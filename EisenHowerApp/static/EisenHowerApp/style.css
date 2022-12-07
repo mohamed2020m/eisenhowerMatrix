@@ -12,9 +12,6 @@ body{
 ul{
     list-style: none;
 }
-.app_container{
-
-}
 
 .sideBar{
     overflow-x: auto;
@@ -34,6 +31,9 @@ ul{
     padding:10px 15px;
     margin-top: 10px;
     background-color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .sideBar .sideBar_elements a{
@@ -223,6 +223,9 @@ ul{
     background-color: aliceblue;
 }
 
+.task_finished:hover{
+    cursor: pointer;
+}
 
 .sticy_card_header{
     position: sticky;
@@ -239,9 +242,6 @@ ul{
     display: none;
 }
 
-.delete_a_task{
-    
-}
 .delete_completed_task i:hover, .delete_task i:hover{
     color:rgb(217, 78, 78)
 }

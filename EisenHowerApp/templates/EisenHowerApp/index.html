@@ -299,14 +299,18 @@
         })
         .then(data => {
             if(data.error){
-                //document.querySelector(".toast-body")[0].innerHTML = data.error;
-                document.querySelector(".toast")[0].show();
+                new Toast({
+                    message: data.error,
+                    type: 'danger'
+                });
             }
             else{
-                data = JSON.parse(data);
-                let task_id = data[0]['pk'];
-                let task_title = data[0]["fields"]['title']; 
-                let task_quadrant = data[0]["fields"]["quadrant"];
+                let message = data["message"];
+                console.log(message);
+                let result = JSON.parse(data["result"]);
+                let task_id = result[0]['pk'];
+                let task_title = result[0]["fields"]['title']; 
+                let task_quadrant = result[0]["fields"]["quadrant"];
                 document.querySelector(`#sec_${task_quadrant}`).innerHTML += `
                 <li class="d-flex task_item" id="ts_${task_id}">
                     <form method="post" id="form_task_${task_id}" onsubmit="return false">
@@ -355,6 +359,10 @@
                 // delete task
                 let dtask = document.querySelector(`#delete_task_form_${task_id}`);
                 dtask.addEventListener('submit', DeleteTask)
+                new Toast({
+                    message: message,
+                    type: 'success'
+                });
             }
             task_form.reset();
         })
@@ -391,13 +399,13 @@
     function checkTaskStatus(checkboxContainer, li, dt){
         if(checkboxContainer.checked){
             li.style.textDecoration = 'line-through';
-            li.classList.add('justify-content-between');
+            li.classList.add('justify-content-between', 'align-items-center');
             dt.style.display = "inline-block";
             checkboxContainer.checked = true;
         } 
         else{
             li.style.textDecoration = 'none';
-            li.classList.remove('justify-content-between');
+            li.classList.remove('justify-content-between', 'align-items-center');
             dt.style.display = "none"; 
             checkboxContainer.checked = false; 
         }
@@ -419,7 +427,12 @@
             return response.json()
         })
         .then(data => {
-            data = JSON.parse(data);
+            if(data.error){
+                new Toast({
+                    message: data.error,
+                    type: 'danger'
+                });    
+            }
         })
 
         // submit the form
@@ -459,6 +472,10 @@
             const delete_model = document.querySelector(`#delete_task_${taskID}`)
             delete_task.remove();
             delete_model.remove();
+            new Toast({
+                message: data.message,
+                type: 'success'
+            }); 
         })
     }
 </script>
