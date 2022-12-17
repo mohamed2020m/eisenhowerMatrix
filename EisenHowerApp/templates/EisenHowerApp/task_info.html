@@ -1,0 +1,30 @@
+{%extends "EisenHowerApp/layout.html"%}
+
+{%block content%}
+
+    <div class="container d-flex justify-content-center">
+        <div class="pg_task_container">
+            <div class="d-flex justify-content-between">
+                <h3>{{task.title}}</h3>
+                <div class="mx-3">
+                    <button class="btn btn-warning">Edit</button>
+                    <button class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+            <div>
+                <span class="fw-lighter fst-italic fs-6">created At: {{task.created_At}}</span>
+                {% if task.status == "done" %}
+                    <span class="text-success">Finished</span> 
+                {% elif task.status == "in_progress" %}
+                    <span class="text-danger">In Progress</span>
+                {%endif%}
+            </div>
+            <div class="my-3 pg_task_description">
+                <div class="lable_task_description">Description: </div>
+                <div>
+                    {{task.description}}
+                </div>
+            </div>
+        </div>
+    </div>
+{%endblock%}

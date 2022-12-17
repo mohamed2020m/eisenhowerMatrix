@@ -24,7 +24,7 @@
                                         {%endif%}
                                     </div>
                                 </form>
-                                {{task.title}}
+                                <a href="{%url 'task' task.id %}" class="text-decoration-none text-dark">{{task.title}}</a>
                                 <div class="form-check delete_task">
                                     <button type="button" class="btn delete_a_task" data-bs-toggle="modal" data-bs-target="#delete_task_{{task.id}}">
                                         <i class="fa fa-trash" aria-hidden="true"></i>
@@ -80,7 +80,7 @@
                                         {%endif%}
                                     </div>
                                 </form>
-                                {{task.title}}
+                                <a href="{%url 'task' task.id %}" class="text-decoration-none text-dark">{{task.title}}</a>
                                 <div class="form-check delete_task">
                                     <button type="button" class="btn delete_a_task" data-bs-toggle="modal" data-bs-target="#delete_task_{{task.id}}">
                                         <i class="fa fa-trash" aria-hidden="true"></i>
@@ -137,8 +137,7 @@
                                         {%endif%}
                                     </div>
                                 </form>
-                                {{task.title}}
-
+                                <a href="{%url 'task' task.id %}" class="text-decoration-none text-dark">{{task.title}}</a>
                                 <div class="form-check delete_task">
                                     <button type="button" class="btn delete_a_task" data-bs-toggle="modal" data-bs-target="#delete_task_{{task.id}}">
                                         <i class="fa fa-trash" aria-hidden="true"></i>
@@ -194,7 +193,7 @@
                                         {%endif%}
                                     </div>
                                 </form>
-                                {{task.title}}
+                                <a href="{%url 'task' task.id %}" class="text-decoration-none text-dark">{{task.title}}</a>
                                 <div class="form-check delete_task">
                                     <button type="button" class="btn delete_a_task" data-bs-toggle="modal" data-bs-target="#delete_task_{{task.id}}">
                                         <i class="fa fa-trash" aria-hidden="true"></i>
@@ -260,6 +259,9 @@
                             <option value="{{q.0}}">{{q.1}}</option>
                         {%endfor%}
                     </select>
+                    <div class="form-group mt-3">
+                        <textarea class="form-control" name="task_description" id="" rows="5" placeholder="Task's Description"></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="submit" value="create_new_task" id="save_task" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
@@ -306,7 +308,7 @@
             }
             else{
                 let message = data["message"];
-                console.log(message);
+                //console.log(message);
                 let result = JSON.parse(data["result"]);
                 let task_id = result[0]['pk'];
                 let task_title = result[0]["fields"]['title']; 
@@ -319,7 +321,8 @@
                             <input class="form-check-input" name="isChecked" type="checkbox">
                         </div>
                     </form>
-                    ${task_title}
+                    <a href="http://127.0.0.1:8000/task/${task_id}" class="text-decoration-none text-dark">${task_title}</a>
+
                     <div class="form-check delete_task">
                         <button type="button" class="btn delete_a_task" data-bs-toggle="modal" data-bs-target="#delete_task_${task_id}">
                             <i class="fa fa-trash" aria-hidden="true"></i>
@@ -379,8 +382,8 @@
     document.addEventListener('DOMContentLoaded', () => {
         checkboxTask.forEach((task) => {
             let check_task = task.childNodes[1];
-            let list_item = check_task.parentNode.parentNode.parentNode;
-            let delete_task = check_task.parentNode.parentNode.nextSibling.nextSibling;
+            let list_item = task.parentNode.parentNode;
+            let delete_task = task.parentNode.nextSibling.nextSibling.nextSibling.nextSibling;
             checkTaskStatus(check_task, list_item, delete_task);
         });
     });
@@ -390,7 +393,7 @@
         task.addEventListener('click', (e) => {
             let list_item = e.target.parentNode.parentNode.parentNode;
             let task_form_item =  e.target.parentNode.parentNode;
-            let delete_task = e.target.parentNode.parentNode.nextSibling.nextSibling;
+            let delete_task = e.target.parentNode.parentNode.nextSibling.nextSibling.nextSibling.nextSibling;
             checkTaskStatus(e.target, list_item, delete_task);
             updateTask(task_form_item, list_item);
         });

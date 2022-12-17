@@ -1,15 +1,17 @@
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from django.core import serializers
 from django.db import IntegrityError
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from EisenHowerApp.models import Tasks, Users
 
-@login_required
+@login_required(login_url='login')
 def index(request):
-    tasks = Tasks.objects.all()
+    tasks = Tasks.objects.filter(user=request.user)
     return render(request, 'EisenHowerApp/index.html', {
         "tasks": tasks,
         "valid_quadrants" : [('do_first', 'Do First'), ('schedule', 'Schedule'), 
@@ -17,24 +19,31 @@ def index(request):
         ]
     })
 
-@login_required
+@login_required(login_url='login')
+def task(request, task_id):
+    task = Tasks.objects.get(id=task_id)
+    return render(request, 'EisenHowerApp/task_info.html', {
+        "task": task,
+    })
+
+@login_required(login_url='login')
 def completedTask(request):
-    completed_tasks = Tasks.objects.filter(status="done")
+    completed_tasks = Tasks.objects.filter(user=request.user, status="done")
 
     return render(request, "EisenHowerApp/completedTask.html", {
         "completedTask": completed_tasks
     })
 
-@login_required
+@login_required(login_url='login')
 def CreateTask(request):
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         title = request.POST["title"]
         quadrant = request.POST["quadrant"]
-
+        task_description = request.POST["task_description"]
         # create a task
         try:
             if quadrant in ['do_first', 'schedule', 'delegate','dont_do'] :
-                new_task = Tasks(title=title, quadrant=quadrant)
+                new_task = Tasks(title=title, description=task_description, quadrant=quadrant, user=request.user)
                 new_task.save()
             else:
                 raise ValueError('No valid task type!') 
@@ -49,7 +58,7 @@ def CreateTask(request):
 
     return JsonResponse({"Error": "Unvalid method"}, status=405)
 
-@login_required
+@login_required(login_url='login')
 def UpdateTaskStatus(request, task_id):
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         checked = request.POST.get("isChecked")
@@ -62,7 +71,7 @@ def UpdateTaskStatus(request, task_id):
 
         # update Task status
         if(task_status in ['done', 'in_progress']):
-            Tasks.objects.filter(id=task_id).update(status=task_status)
+            Tasks.objects.filter(id=task_id, user=request.user).update(status=task_status)
         else:
             return JsonResponse({"error":"Unvalid task status!"}, status=400)
 
@@ -73,11 +82,11 @@ def UpdateTaskStatus(request, task_id):
     
     return JsonResponse({"Error":"Unvalid method"}, status=405)
 
-@login_required
+@login_required(login_url='login')
 def DeleteTask(request, task_id):
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         # delete the task
-        Tasks.objects.filter(id=task_id).delete()
+        Tasks.objects.filter(id=task_id, user=request.user).delete()
         return JsonResponse({"message": "Deleted Successfully!"}, status=200)
     return JsonResponse({"Error": "Unvalid method"}, status=405)
 
@@ -97,8 +106,8 @@ def login_view(request):
             return render(request, "EisenHowerApp/login.html", {
                 "message": "Invalid username and/or password."
             })
-    else:
-        return render(request, "EisenHowerApp/login.html")
+
+    return render(request, "EisenHowerApp/login.html")
 
 
 def logout_view(request):
@@ -108,11 +117,31 @@ def logout_view(request):
 def register(request):
     if request.method == "POST":
         username = request.POST["username"]
+        first_name = request.POST["firstname"]
+        last_name = request.POST["lastname"]
         email = request.POST["email"]
-
-        # Ensure password matches confirmation
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
+        
+        # username shouldn't be empty
+        if not username:
+            return render(request, "EisenHowerApp/register.html", {
+                "message": "Username required!"
+            })
+        # firstName and lastName must be non-empty
+        if not first_name and not last_name:
+            return render(request, "EisenHowerApp/register.html", {
+                "message": "firstName and LastName are required!"
+            })
+        # Ensure email is valid
+        try:
+            validate_email(email)
+        except ValidationError:
+            return render(request, "EisenHowerApp/register.html", {
+                 "message": "Enter a valid email address"
+            })
+
+        # Ensure password matches confirmation
         if password != confirmation:
             return render(request, "EisenHowerApp/register.html", {
                 "message": "Passwords must match."
@@ -120,15 +149,21 @@ def register(request):
 
         # Attempt to create new user
         try:
-            user = Users.objects.create_user(username, email, password)
+            user = Users.objects.create_user(
+                username=username, 
+                first_name=first_name, 
+                last_name=last_name,
+                email=email, 
+                password=password, 
+            )
             user.save()
+
         except IntegrityError:
             return render(request, "EisenHowerApp/register.html", {
                 "message": "Username already taken."
             })
 
         login(request, user)
-
         return HttpResponseRedirect(reverse("index"))
-    
-    return render(request, "EisenHowerApp/register.html")
+
+    return render(request, "EisenHowerApp/register.html", {})
