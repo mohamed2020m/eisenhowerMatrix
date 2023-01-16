@@ -1,9 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.core import serializers
+from django.utils import timezone
+from django.utils.html import format_html
 from django.db import IntegrityError
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -21,10 +23,19 @@ def index(request):
 
 @login_required(login_url='login')
 def task(request, task_id):
-    task = Tasks.objects.get(id=task_id)
-    return render(request, 'EisenHowerApp/task_info.html', {
-        "task": task,
-    })
+    try:
+        task = Tasks.objects.get(id=task_id, user_id=request.user)
+        return render(request, 'EisenHowerApp/task_info.html', {
+            "task": task,
+            "task_description": format_html(task.description),
+            "valid_quadrants" : [('do_first', 'Do First'), ('schedule', 'Schedule'), 
+                ('delegate', 'Delegate'), ('dont_do', 'Don\'t do')
+            ]
+        })
+    except Tasks.DoesNotExist:
+        return render(request, 'EisenHowerApp/404.html', {
+
+        })
 
 @login_required(login_url='login')
 def completedTask(request):
@@ -40,9 +51,13 @@ def CreateTask(request):
         title = request.POST["title"]
         quadrant = request.POST["quadrant"]
         task_description = request.POST["task_description"]
+
+        print("description: ", task_description)
         # create a task
         try:
             if quadrant in ['do_first', 'schedule', 'delegate','dont_do'] :
+                if not title:
+                    return JsonResponse({"error": "Empty title not Allowed!"}, status=500)
                 new_task = Tasks(title=title, description=task_description, quadrant=quadrant, user=request.user)
                 new_task.save()
             else:
@@ -57,6 +72,38 @@ def CreateTask(request):
         return JsonResponse({"message": "Successfully created!", "result": serialized_new_task}, status=200)
 
     return JsonResponse({"Error": "Unvalid method"}, status=405)
+
+@login_required(login_url='login')
+def EditTask(request, task_id):
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        title = request.POST["title"]
+        quadrant = request.POST["quadrant"]
+        task_description = request.POST["task_description"]
+        # edit a task
+        try:
+            if quadrant in ['do_first', 'schedule', 'delegate','dont_do'] :
+                if not title:
+                    return JsonResponse({"error": "Empty title not Allowed!"}, status=500)
+                Tasks.objects.filter(id=task_id, user=request.user).update(
+                    title=title, 
+                    description=task_description, 
+                    quadrant=quadrant,
+                    updated_At=timezone.now(),
+                    isUpdated = True
+                )
+            else:
+                raise ValueError('No valid task type!') 
+        except IntegrityError:
+            return JsonResponse({"error": "Already exist!"}, status=500)
+        
+        except ValueError as e:
+            return JsonResponse({"error": str(e)}, status=501)
+
+        serialized_updated_task = serializers.serialize('json', [ Tasks.objects.get(id=task_id)])
+        return JsonResponse({"message": "Successfully updated!", "result": serialized_updated_task}, status=200)
+
+    return JsonResponse({"Error": "Unvalid method"}, status=405)
+
 
 @login_required(login_url='login')
 def UpdateTaskStatus(request, task_id):
@@ -90,6 +137,12 @@ def DeleteTask(request, task_id):
         return JsonResponse({"message": "Deleted Successfully!"}, status=200)
     return JsonResponse({"Error": "Unvalid method"}, status=405)
 
+@login_required(login_url='login')
+def DeleteTaskWithoutAjax(request, task_id):
+    if request.method == 'POST':
+        Tasks.objects.filter(id=task_id, user=request.user).delete()
+        return HttpResponseRedirect(reverse('index'))
+    return JsonResponse({"Error": "Unvalid method"}, status=405)
 
 def login_view(request):
     if request.method == "POST":

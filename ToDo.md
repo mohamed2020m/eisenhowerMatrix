@@ -14,7 +14,7 @@
 
 - every task should have its own page or pop-up, so user can see more detail about the task. 
 example: description, data of creation, date of modification(not yet!). done!
-- user can change title and description of task from the page/pop-up mentioned before.
+- user can change title and description of task from the page/pop-up mentioned before. done!
 - user can add comments to a task.
 - user can set remiders for the scheduled task, we can use google calendars APIs.
 - user can assign a task to another user via an email.

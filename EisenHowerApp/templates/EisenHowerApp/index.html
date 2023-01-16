@@ -240,31 +240,33 @@
 
 <!-- creating a task -->
 <div class="modal fade-scale" id="add_new_task" tabindex="-1" aria-labelledby="add_new_taskLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="add_new_taskLabel">New Task</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form class="from" method="post" id="task_form">
+            <form class="form" method="post" id="task_form">
                 {% csrf_token %}
                 <div class="modal-body">
-                    <div class="mb-3 row">
-                        <div class="">
+                    <div class="row">
+                        <div class="col-6">
                             <input type="text" name="title" class="form-control" id="task_title" placeholder="Task Title">
                         </div>
+                        <div class="col-6">
+                            <select class="form-select" name="quadrant">
+                                {%for q in valid_quadrants%}
+                                    <option value="{{q.0}}">{{q.1}}</option>
+                                {%endfor%}
+                            </select>
+                        </div>
                     </div>
-                    <select class="form-select" name="quadrant" aria-label="Default select example">
-                        {%for q in valid_quadrants%}
-                            <option value="{{q.0}}">{{q.1}}</option>
-                        {%endfor%}
-                    </select>
-                    <div class="form-group mt-3">
-                        <textarea class="form-control" name="task_description" id="" rows="5" placeholder="Task's Description"></textarea>
+                    <div class="mt-3">
+                        <textarea class="form-control" name="task_description" id="new_task_description"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" value="create_new_task" id="save_task" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
+                    <button type="submit" name="create_new_task" id="save_task" class="btn btn-primary" data-bs-dismiss="modal">Create Task</button>
                 </div>
             </form>
         </div>
@@ -275,19 +277,59 @@
 
 
 {%block javascript%}
+
+<script>
+    tinymce.init({
+        selector: 'textarea#new_task_description',
+        plugins: 'anchor charmap image link lists table checklist casechange permanentpen powerpaste inlinecss',
+        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent',
+        toolbar_mode: 'sliding',
+        automatic_uploads: true,
+        file_picker_types: 'image',
+        file_picker_callback: (cb, value, meta) => {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+
+                const reader = new FileReader();
+                reader.addEventListener('load', () => {
+                    const id = 'blobid' + (new Date()).getTime();
+                    const blobCache =  tinymce.activeEditor.editorUpload.blobCache;
+                    const base64 = reader.result.split(',')[1];
+                    const blobInfo = blobCache.create(id, file, base64);
+                    blobCache.add(blobInfo);
+
+                    /* call the callback and populate the Title field with the file name */
+                    cb(blobInfo.blobUri(), { title: file.name });
+                });
+                reader.readAsDataURL(file);
+            });
+
+            input.click();
+        },
+        menubar: false,
+        statusbar: false,
+        height: 300,
+    });
+</script>
+
 <script>  
     // create a new task  
     let task_form = document.querySelector("#task_form");
-
     task_form.addEventListener('submit', Create_newTask)
-
     
     function Create_newTask(e){
         e.preventDefault();
-        
+        let content = tinymce.activeEditor.getContent();
         let formData = new FormData(task_form);
+        let url = window.location.href.slice(0,-1);
 
-        fetch('http://127.0.0.1:8000/create_task', {
+        formData.append("task_description", content);
+
+        fetch(`${url}/create_task`, {
             method: 'POST',
             credentials: 'same-origin',
             headers:{
@@ -308,7 +350,6 @@
             }
             else{
                 let message = data["message"];
-                //console.log(message);
                 let result = JSON.parse(data["result"]);
                 let task_id = result[0]['pk'];
                 let task_title = result[0]["fields"]['title']; 
@@ -321,7 +362,7 @@
                             <input class="form-check-input" name="isChecked" type="checkbox">
                         </div>
                     </form>
-                    <a href="http://127.0.0.1:8000/task/${task_id}" class="text-decoration-none text-dark">${task_title}</a>
+                    <a href="${url}/task/${task_id}" class="text-decoration-none text-dark">${task_title}</a>
 
                     <div class="form-check delete_task">
                         <button type="button" class="btn delete_a_task" data-bs-toggle="modal" data-bs-target="#delete_task_${task_id}">
@@ -353,9 +394,9 @@
                 // update task status
                 let task = document.querySelector(`#isDone_${task_id}`);
                 task.addEventListener('click', (e) => {
-                    let list_item = e.target.parentNode.parentNode.parentNode;
                     let task_form_item =  e.target.parentNode.parentNode;
-                    let delete_task = e.target.parentNode.parentNode.nextSibling.nextSibling;
+                    let list_item = task_form_item.parentNode;
+                    let delete_task = task_form_item.nextSibling.nextSibling.nextSibling.nextSibling;
                     checkTaskStatus(e.target, list_item, delete_task);
                     updateTask(task_form_item, list_item);
                 });
@@ -417,7 +458,8 @@
     function updateTask(form, li){
         let formData = new FormData(form);
         let taskId =  li.id.replace("ts_", "");
-        fetch(`http://127.0.0.1:8000/update_task_status/${taskId}`, {
+        let url = window.location.href.slice(0,-1);
+        fetch(`${url}/update_task_status/${taskId}`, {
             method: 'POST',
             credentials: 'same-origin',
             headers:{
@@ -457,8 +499,9 @@
         let taskID = e.target.firstChild.nextSibling.nextSibling.nextSibling.value;
 
         let formData = new FormData(e.target);
+        let url = window.location.href.slice(0,-1);
 
-        fetch(`http://127.0.0.1:8000/delete_task/${taskID}`, {
+        fetch(`${url}/delete_task/${taskID}`, {
             method: 'POST',
             credentials: 'same-origin',
             headers:{

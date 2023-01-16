@@ -1,30 +1,231 @@
 {%extends "EisenHowerApp/layout.html"%}
+{%load static%}
 
 {%block content%}
-
     <div class="container d-flex justify-content-center">
         <div class="pg_task_container">
             <div class="d-flex justify-content-between">
-                <h3>{{task.title}}</h3>
+                <h3 id="task_title">{{task.title}}</h3>
                 <div class="mx-3">
-                    <button class="btn btn-warning">Edit</button>
-                    <button class="btn btn-danger">Delete</button>
+                    <button class="btn btn-warning text-white" data-bs-toggle="modal" data-bs-target="#edit_task">
+                        <i class="fa fa-edit"></i>
+                    </button>
+                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete_task">
+                        <i class="fa fa-trash"></i>
+                    </button>
                 </div>
             </div>
             <div>
-                <span class="fw-lighter fst-italic fs-6">created At: {{task.created_At}}</span>
+                <span class="fw-lighter fst-italic fs-6" id="task_date">
+                    {%if task.isUpdated %}
+                    Updated At:
+                    {%else%}
+                    Created At:
+                    {%endif%} 
+                    {{task.created_At}}
+                </span>
+                |
                 {% if task.status == "done" %}
                     <span class="text-success">Finished</span> 
                 {% elif task.status == "in_progress" %}
                     <span class="text-danger">In Progress</span>
                 {%endif%}
+                |
+                <span id="task_quadrant">{{task.quadrant}}</span>
             </div>
             <div class="my-3 pg_task_description">
                 <div class="lable_task_description">Description: </div>
-                <div>
-                    {{task.description}}
+                <div id="task_description">
+                    {{task_description}}
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- edit the task -->
+    <div class="modal fade-scale" id="edit_task" tabindex="-1" aria-labelledby="edit_taskLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="edit_taskLabel">Edit Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form class="form" method="post" id="task_form">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="mb-3 col-6">
+                                <input type="text" name="title" class="form-control" id="task_title" value="{{task.title}}">    
+                            </div>
+                            <div class="col-6">
+                                <select class="form-select" name="quadrant" aria-label="">
+                                    {%for q in valid_quadrants%}
+                                        {%if task.quadrant == q.0 %}
+                                            <option value="{{q.0}}" selected>{{q.1}}</option>
+                                        {%else%}
+                                            <option value="{{q.0}}">{{q.1}}</option>
+                                        {%endif%}
+                                    {%endfor%}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group mt-3">
+                            <textarea class="form-control" name="task_description" id="edit_task_description" rows="5">{{task_description}}</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" id="save_task" class="btn btn-warning text-white" data-bs-dismiss="modal">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- delete the task -->
+    <div class="modal fade-scale" id="delete_task" tabindex="-1" aria-labelledby="delete_taskLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="add_new_taskLabel">Delete Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Do you want to delete the task? </p>
+                </div>
+                <div class="modal-footer">
+                    <form class="delete_task_from" method="post">
+                        {% csrf_token %}
+                        <input type="text" value="{{task.id}}" hidden>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                        <button type="submit" name="delete_task" class="btn btn-danger">Yes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{%endblock%}
+
+{%block javascript %}
+
+<script>
+    tinymce.init({
+        selector: 'textarea#edit_task_description',
+        plugins: 'anchor charmap image link lists table checklist casechange permanentpen powerpaste inlinecss',
+        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent',
+        toolbar_mode: 'sliding',
+        automatic_uploads: true,
+        file_picker_types: 'image',
+        file_picker_callback: (cb, value, meta) => {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+
+                const reader = new FileReader();
+                reader.addEventListener('load', () => {
+                    const id = 'blobid' + (new Date()).getTime();
+                    const blobCache =  tinymce.activeEditor.editorUpload.blobCache;
+                    const base64 = reader.result.split(',')[1];
+                    const blobInfo = blobCache.create(id, file, base64);
+                    blobCache.add(blobInfo);
+
+                    /* call the callback and populate the Title field with the file name */
+                    cb(blobInfo.blobUri(), { title: file.name });
+                });
+                reader.readAsDataURL(file);
+            });
+
+            input.click();
+        },
+        menubar: false,
+        statusbar: false,
+        height: 300,
+    });
+</script>
+
+<script>
+    let url = window.location.origin;
+    let taskIdList = window.location.pathname.split('/');
+    let taskId = taskIdList[taskIdList.length - 1];
+    // edit task
+    let update_task_form = document.querySelector("#task_form");
+    
+    update_task_form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        let content = tinymce.activeEditor.getContent();
+        let formData = new FormData(update_task_form);
+        formData.append("task_description", content);
+
+        fetch(`${url}/edit_task/${taskId}`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers:{
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: formData
+        })
+        .then(response => {
+            return response.json()
+        })
+        .then(data => {
+            let results = JSON.parse(data['result'])[0]['fields'];
+            let updatedAt = new Date(results['updated_At']).toLocaleString("en-US", {
+                year: "numeric", 
+                month: "short", 
+                day: "2-digit", 
+                hour: "2-digit", 
+                minute: "2-digit"
+            })
+            document.querySelector("#task_title").innerHTML = results['title'];
+            document.querySelector("#task_description").innerHTML = results['description'];
+            document.querySelector("#task_date").innerHTML = 'Updated At: ' + updatedAt;
+            document.querySelector("#task_quadrant").innerHTML = results['quadrant'];
+            if(data.message){
+                new Toast({
+                    message: data.message,
+                    type: 'success'
+                }); 
+            }
+            else{
+                new Toast({
+                    message: data.error,
+                    type: 'danger'
+                });   
+            }
+        })
+    })
+</script>
+
+<script>
+    // delete task
+    const task_forms = document.querySelector(".delete_task_from");
+    let taskID = task_forms.firstChild.nextSibling.nextSibling.nextSibling.value;
+    let formData = new FormData(task_forms);
+
+    task_forms.addEventListener('submit', () => {
+        fetch(`${url}/delete_task_wajx/${taskID}`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers:{
+                'Accept': 'application/json',
+            },
+            body: formData
+        })
+        .then(response => {
+            return response.json()
+        })
+        .then(data => {
+            if(data.message){
+                new Toast({
+                    message: data.message,
+                    type: 'success'
+                }); 
+            }
+        })
+    })
+ 
+</script>
 {%endblock%}

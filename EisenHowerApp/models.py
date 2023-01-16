@@ -19,7 +19,7 @@ class Tasks(models.Model):
     description = models.TextField(max_length=500, default="No description")
     created_At = models.DateTimeField(default=timezone.now())
     updated_At = models.DateTimeField(default=timezone.now())
-
+    isUpdated = models.BooleanField(default=False)
     def __str__(self) -> str:
         return self.title
 

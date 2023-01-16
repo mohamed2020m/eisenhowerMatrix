@@ -17,7 +17,7 @@ ul{
     overflow-x: auto;
     border-right: 1px dotted rgb(6, 5, 5) !important;
     height: 100vh;
-    padding: 0;
+    /* padding: 0; */
 }
 
 .sideBar .sideBar_elements{
@@ -46,9 +46,10 @@ ul{
     color:white;
 }
 
+
 .developer{
     position: absolute;
-    bottom:0
+    bottom:0;
 }
 
 .App{
@@ -262,4 +263,9 @@ ul{
 .lable_task_description{
     font-size: 12px;
     text-decoration: underline;
+}
+
+/* task_info */
+#task_title{
+    max-width: 500px;
 }
