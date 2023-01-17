@@ -3,7 +3,7 @@
 {%block content%}
 
 <div class="cards d-flex flex-column justify-content-center align-items-center">
-    <div class="row">
+    <div class="row sub_cards">
         <div class="col card card4">
             <div class="card-header sticy_card_header">
                Do First 
@@ -116,7 +116,7 @@
             </div> 
         </div>
     </div>
-    <div class="row">
+    <div class="row sub_cards">
         <div class="col card card3">
             <div class="card-header sticy_card_header">
                 Delegate
@@ -251,7 +251,7 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-6">
-                            <input type="text" name="title" class="form-control" id="task_title" placeholder="Task Title">
+                            <input type="text" name="title" class="form-control" id="task_title" placeholder="Task's Title" maxlength="100">
                         </div>
                         <div class="col-6">
                             <select class="form-select" name="quadrant">
@@ -412,7 +412,6 @@
         })
     }
 </script>
-
 
 <script>
     // mark a task as done

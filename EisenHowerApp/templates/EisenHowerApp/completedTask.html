@@ -2,9 +2,8 @@
 
 {%block content%}
 
-<div class="container">
-    <h1>Tasks you have been completed</h1>
-
+<div class="container mt-3">
+    <h2>Tasks you have been completed</h2>    
     <div class="finished_task_container">
         {%for t in completedTask%}
             <div class="d-flex" id="task_container_{{t.id}}">
@@ -18,16 +17,59 @@
                     </div>
                 </form>
                 <div class="task_finished">
-                    {{t.title}}
+                    <a class="text-dark text-decoration-none " href="{%url 'task' t.id %}">{{t.title}}</a>
                 </div>
             </div>
         {%endfor%}
     </div>
+
+    <div class="row align-items-center">
+        <div class="col-6">
+            <div class="d-flex justify-content-end p-3">
+                <div class="pagination">
+                    <span class="step-links">
+                        {% if completedTask.has_previous %}
+                            <a href="?tasks={{ completedTask.previous_page_number }}&task_count={{task_count}}">
+                                <i class="fas fa-arrow-left me-2"></i>
+                            </a>
+                        {% endif %}
+            
+                        <span class="current text-secondary">
+                            Page {{ completedTask.number }} of {{ completedTask.paginator.num_pages }}
+                        </span>
+            
+                        {% if completedTask.has_next %}
+                            <a href="?tasks={{ completedTask.next_page_number }}&task_count={{task_count}}">
+                                <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="d-flex justify-content-around">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{task_count}}
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="http://127.0.0.1:8000/completed_Tasks?task_count=5">5</a></li>
+                        <li><a class="dropdown-item" href="http://127.0.0.1:8000/completed_Tasks?task_count=10">10</a></li>
+                        <li><a class="dropdown-item" href="http://127.0.0.1:8000/completed_Tasks?task_count=25">25</a></li>
+                        <li><a class="dropdown-item" href="http://127.0.0.1:8000/completed_Tasks?task_count=50">50</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 {%endblock%}
 
 {%block javascript%}
+
 <script>
     // delete task
     const task_forms = document.querySelectorAll(".delete_task_form");

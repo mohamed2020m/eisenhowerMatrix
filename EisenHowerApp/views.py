@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.core import serializers
+from django.core.paginator import Paginator
 from django.utils import timezone
 from django.utils.html import format_html
 from django.db import IntegrityError
@@ -39,10 +40,14 @@ def task(request, task_id):
 
 @login_required(login_url='login')
 def completedTask(request):
+    task_count = request.GET.get('task_count') or 10
     completed_tasks = Tasks.objects.filter(user=request.user, status="done")
-
+    paginator = Paginator(completed_tasks, task_count)
+    page = request.GET.get('tasks')
+    items = paginator.get_page(page)
     return render(request, "EisenHowerApp/completedTask.html", {
-        "completedTask": completed_tasks
+        "completedTask": items,
+        "task_count": task_count
     })
 
 @login_required(login_url='login')
@@ -58,6 +63,8 @@ def CreateTask(request):
             if quadrant in ['do_first', 'schedule', 'delegate','dont_do'] :
                 if not title:
                     return JsonResponse({"error": "Empty title not Allowed!"}, status=500)
+                elif len(title) > 100:
+                    return JsonResponse({"error": "title should not exceed 100 Characters!"}, status=500) 
                 new_task = Tasks(title=title, description=task_description, quadrant=quadrant, user=request.user)
                 new_task.save()
             else:

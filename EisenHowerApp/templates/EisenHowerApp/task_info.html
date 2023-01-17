@@ -36,7 +36,11 @@
             <div class="my-3 pg_task_description">
                 <div class="lable_task_description">Description: </div>
                 <div id="task_description">
+                    {%if task_description %}
                     {{task_description}}
+                    {%else%}
+                    No Description
+                    {%endif%}
                 </div>
             </div>
         </div>

@@ -4,6 +4,19 @@
     padding: 0;
 }
 
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(224, 225, 224, 0.537);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(193, 194, 194);
+}
+
 body{
     overflow-x: hidden;
     background-color: #eee;
@@ -46,7 +59,6 @@ ul{
     color:white;
 }
 
-
 .developer{
     position: absolute;
     bottom:0;
@@ -54,13 +66,12 @@ ul{
 
 .App{
     /* width:100%; */
-    /* border:1px solid red !important; */
     /* height: 100vh; */
-    overflow-x: auto;
+    /* overflow-x: auto; */
+    position:relative;
 }
 
 .App .cards{
-    /* border:1px solid red; */
     height: 100%;
 }
 
@@ -115,8 +126,6 @@ ul{
 
 .App .cards .card1:hover{
     box-shadow: 0px 0px 8px rgba(255, 0, 0);
-    /* border: 1px solid rgb(212, 96, 96);; */
-    /* animation: border_cards 2s linear alternate; */
 }
 
 .App .cards .card2{
@@ -160,10 +169,10 @@ ul{
 }
 
 .add_task_container{
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    margin:15px;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    /* margin:15px; */
 }
 
 .add_task_container .add_task{
@@ -268,4 +277,57 @@ ul{
 /* task_info */
 #task_title{
     max-width: 500px;
+}
+
+
+/* Mobile-responsive */
+
+.toggle_btn{
+    display: none;
+}
+
+.task_item a {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media screen and (max-width:700px) {
+    .sideBarM{
+        display: none !important;
+    }
+    .toggle_btn{
+        display: block;
+        margin-top: 10px;
+    }
+    .sideBar{
+        border:none;
+    }
+    .sideBar_elementsMin a .sideBar_element{
+        border: 1px solid gray;
+        border-radius:5px;
+        padding:10px 15px;
+        margin-top: 10px;
+        background-color: white;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .sideBar_elementsMin a{
+        text-decoration: none;
+        color:black
+    }
+    .sideBar_elementsMin a .sideBar_element:hover{
+        background-color: rgb(81, 79, 79);
+        color:white;
+    }
+}
+
+@media screen and (max-width:484px){
+    .card{
+        width:100% !important;
+    }
+    .sub_cards {
+        width:370px;
+    }
 }
