@@ -1,13 +1,15 @@
 # App Preview
 
-### Desktop and laptob Screens
+### Desktop and laptop Screens
 
-![screenshot](./EisenHowerApp/static/EisenHowerApp/img/screenshot_for_app.png)
+<p align="center">
+  <img src="./EisenHowerApp/static/EisenHowerApp/img/screenshot_for_app.png" alt="screenshot">
+</p>
 
 ### Mobile Screens
 
 <p align="center">
-    ![screenshot_mobile](./EisenHowerApp/static/EisenHowerApp/img/screenshot_for_app_mobile_screens.png)
+  <img src="./EisenHowerApp/static/EisenHowerApp/img/screenshot_for_app_mobile_screens.png" alt="screenshot_mobile">
 </p>
 
 
