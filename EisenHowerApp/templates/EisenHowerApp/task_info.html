@@ -209,7 +209,7 @@
     let taskID = task_forms.firstChild.nextSibling.nextSibling.nextSibling.value;
     let formData = new FormData(task_forms);
 
-    task_forms.addEventListener('submit', () => {
+    task_forms.addEventListener('submit', (e) => {
         fetch(`${url}/delete_task_wajx/${taskID}`, {
             method: 'POST',
             credentials: 'same-origin',
@@ -222,12 +222,6 @@
             return response.json()
         })
         .then(data => {
-            if(data.message){
-                new Toast({
-                    message: data.message,
-                    type: 'success'
-                }); 
-            }
         })
     })
  

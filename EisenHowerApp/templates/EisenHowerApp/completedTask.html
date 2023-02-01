@@ -72,8 +72,8 @@
 
 <script>
     // delete task
+    let url = window.location.origin;
     const task_forms = document.querySelectorAll(".delete_task_form");
-
     task_forms.forEach((task_form) => {
         task_form.addEventListener('submit', DeleteTask)
     })
@@ -83,7 +83,7 @@
         let taskID = e.target.firstChild.nextSibling.nextSibling.nextSibling.value;
         let formData = new FormData(e.target);
 
-        fetch(`http://127.0.0.1:8000/delete_task/${taskID}`, {
+        fetch(`${url}/delete_task/${taskID}`, {
             method: 'POST',
             credentials: 'same-origin',
             headers:{

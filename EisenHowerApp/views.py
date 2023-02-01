@@ -149,7 +149,7 @@ def DeleteTaskWithoutAjax(request, task_id):
     if request.method == 'POST':
         Tasks.objects.filter(id=task_id, user=request.user).delete()
         return HttpResponseRedirect(reverse('index'))
-    return JsonResponse({"Error": "Unvalid method"}, status=405)
+    return JsonResponse({"error": "Unvalid method"}, status=405)
 
 def login_view(request):
     if request.method == "POST":

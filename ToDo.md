@@ -21,3 +21,16 @@ example: description, data of creation, date of modification(not yet!). done!
 - system should remember the user if he/she doesn't do any task belong to the 'dont do' quadrant,
 and give him a score, else reduce the score by certain number.
 - every task finish reward the user some amount of points.
+
+
+
+1. login
+2. create a task.
+3. show the task created.
+3. make the task done.
+4. reshow the task status.
+5. edit the task.
+6. delete the task.
+7. delete other task from the main page.
+8. show all the completed tasks.
+9. show the mobile screens
