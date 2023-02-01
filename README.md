@@ -1,6 +1,15 @@
 # App Preview
+
+### Desktop and laptob Screens
+
 ![screenshot](./EisenHowerApp/static/EisenHowerApp/img/screenshot_for_app.png)
-![screenshot_mobile](./EisenHowerApp/static/EisenHowerApp/img/screenshot_for_app_mobile_screens.png)
+
+### Mobile Screens
+
+<p align="center">
+    ![screenshot_mobile](./EisenHowerApp/static/EisenHowerApp/img/screenshot_for_app_mobile_screens.png)
+</p>
+
 
 # Distinctiveness and Complexity
 
